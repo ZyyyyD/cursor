@@ -28,6 +28,7 @@ export default function InventoryScreen() {
   const [activeFilter, setActiveFilter] = useState('All');
   const [search, setSearch] = useState('');
   const [selectedItem, setSelectedItem] = useState(null);
+  const [displayMode, setDisplayMode] = useState('card'); // 'card' or 'list'
   
   // Modals
   const [addModalVisible, setAddModalVisible] = useState(false);
@@ -39,7 +40,6 @@ export default function InventoryScreen() {
   // New item form
   const [newItem, setNewItem] = useState({
     name: '',
-    sku: '',
     barcode: '',
     category: '',
     price: '',
@@ -76,7 +76,6 @@ export default function InventoryScreen() {
       const searchLower = search.toLowerCase();
       result = result.filter(item => 
         item.name?.toLowerCase().includes(searchLower) ||
-        item.sku?.toLowerCase().includes(searchLower) ||
         item.barcode?.includes(search) ||
         item.category?.toLowerCase().includes(searchLower)
       );
@@ -94,7 +93,6 @@ export default function InventoryScreen() {
   const resetNewItemForm = () => {
     setNewItem({
       name: '',
-      sku: '',
       barcode: '',
       category: '',
       price: '',
@@ -114,7 +112,6 @@ export default function InventoryScreen() {
     
     addItem({
       name: newItem.name.trim(),
-      sku: newItem.sku.trim() || `SKU-${Date.now()}`,
       barcode: newItem.barcode.trim(),
       category: newItem.category || 'Other',
       price: parseFloat(newItem.price) || 0,
@@ -192,7 +189,7 @@ export default function InventoryScreen() {
 
         {/* Search */}
         <SearchBar
-          placeholder="Search items, SKU, barcode..."
+          placeholder="Search items, barcode..."
           value={search}
           onChangeText={setSearch}
           style={styles.searchBar}
@@ -233,21 +230,42 @@ export default function InventoryScreen() {
           </View>
         </View>
 
-        {/* Results count */}
-        <Text style={styles.resultsText}>
-          {filteredItems.length === 0 
-            ? 'No items found' 
-            : `Showing ${filteredItems.length} of ${items.length} items`}
-        </Text>
+        {/* Results count and display toggle */}
+        <View style={styles.resultsRow}>
+          <Text style={styles.resultsText}>
+            {filteredItems.length === 0 
+              ? 'No items found' 
+              : `Showing ${filteredItems.length} of ${items.length} items`}
+          </Text>
+          <View style={styles.displayToggle}>
+            <Pressable 
+              style={[styles.displayBtn, displayMode === 'card' && styles.displayBtnActive]}
+              onPress={() => setDisplayMode('card')}
+            >
+              <Icon name="square" size={16} color={displayMode === 'card' ? colors.surface : colors.textSecondary} />
+            </Pressable>
+            <Pressable 
+              style={[styles.displayBtn, displayMode === 'grid' && styles.displayBtnActive]}
+              onPress={() => setDisplayMode('grid')}
+            >
+              <Icon name="grid" size={16} color={displayMode === 'grid' ? colors.surface : colors.textSecondary} />
+            </Pressable>
+            <Pressable 
+              style={[styles.displayBtn, displayMode === 'list' && styles.displayBtnActive]}
+              onPress={() => setDisplayMode('list')}
+            >
+              <Icon name="list" size={16} color={displayMode === 'list' ? colors.surface : colors.textSecondary} />
+            </Pressable>
+          </View>
+        </View>
 
-        {/* Item List */}
-        {filteredItems.map((item) => (
+        {/* Card View */}
+        {displayMode === 'card' && filteredItems.map((item) => (
           <Card key={item.id} style={styles.itemCard} onPress={() => handleItemPress(item)}>
             <View style={styles.itemHeader}>
               <View style={styles.itemInfo}>
                 <Text style={styles.itemName}>{item.name}</Text>
                 <View style={styles.itemMeta}>
-                  <Text style={styles.itemSku}>{item.sku}</Text>
                   {item.category && (
                     <>
                       <View style={styles.metaDot} />
@@ -265,7 +283,7 @@ export default function InventoryScreen() {
                   <Text style={styles.qtyValue}>{item.qty}</Text> / {item.min} min
                 </Text>
               </View>
-              <Text style={styles.priceText}>${item.price?.toFixed(2) || '0.00'}</Text>
+              <Text style={styles.priceText}>₱{item.price?.toFixed(2) || '0.00'}</Text>
               <View style={styles.itemActions}>
                 <Pressable style={styles.itemAction} onPress={() => openAdjustModal(item, 'out')}>
                   <Icon name="minus" size={16} color={colors.danger} />
@@ -277,6 +295,56 @@ export default function InventoryScreen() {
             </View>
           </Card>
         ))}
+
+        {/* List View */}
+        {displayMode === 'list' && filteredItems.length > 0 && (
+          <View style={styles.listContainer}>
+            {/* List Header */}
+            <View style={styles.listHeader}>
+              <Text style={[styles.listHeaderText, styles.listColName]}>Item</Text>
+              <Text style={[styles.listHeaderText, styles.listColQty]}>Qty</Text>
+              <Text style={[styles.listHeaderText, styles.listColPrice]}>Price</Text>
+              <Text style={[styles.listHeaderText, styles.listColStatus]}>Status</Text>
+            </View>
+            {/* List Items */}
+            {filteredItems.map((item, index) => (
+              <Pressable 
+                key={item.id} 
+                style={[styles.listRow, index % 2 === 0 && styles.listRowEven]}
+                onPress={() => handleItemPress(item)}
+              >
+                <View style={styles.listColName}>
+                  <Text style={styles.listItemName} numberOfLines={1}>{item.name}</Text>
+                </View>
+                <Text style={[styles.listCellText, styles.listColQty]}>{item.qty}</Text>
+                <Text style={[styles.listCellText, styles.listColPrice]}>₱{item.price?.toFixed(2) || '0.00'}</Text>
+                <View style={styles.listColStatus}>
+                  <View style={[styles.statusDot, { backgroundColor: colors[item.status] }]} />
+                </View>
+              </Pressable>
+            ))}
+          </View>
+        )}
+
+        {/* Grid View (3 items per row) */}
+        {displayMode === 'grid' && filteredItems.length > 0 && (
+          <View style={styles.gridContainer}>
+            {filteredItems.map((item) => (
+              <Pressable 
+                key={item.id} 
+                style={styles.gridItem}
+                onPress={() => handleItemPress(item)}
+              >
+                <View style={[styles.gridStatusBar, { backgroundColor: colors[item.status] }]} />
+                <View style={styles.gridContent}>
+                  <Text style={styles.gridItemName} numberOfLines={2}>{item.name}</Text>
+                  <Text style={styles.gridItemQty}>{item.qty} pcs</Text>
+                  <Text style={styles.gridItemPrice}>₱{item.price?.toFixed(2) || '0.00'}</Text>
+                </View>
+              </Pressable>
+            ))}
+          </View>
+        )}
 
         {/* Empty State */}
         {items.length === 0 && (
@@ -319,16 +387,6 @@ export default function InventoryScreen() {
               </View>
 
               <View style={styles.inputRow}>
-                <View style={[styles.inputGroup, { flex: 1 }]}>
-                  <Text style={styles.inputLabel}>SKU</Text>
-                  <TextInput
-                    style={styles.input}
-                    value={newItem.sku}
-                    onChangeText={(text) => setNewItem({ ...newItem, sku: text })}
-                    placeholder="Auto-generated"
-                    placeholderTextColor={colors.textMuted}
-                  />
-                </View>
                 <View style={[styles.inputGroup, { flex: 1 }]}>
                   <Text style={styles.inputLabel}>Barcode</Text>
                   <TextInput
@@ -448,11 +506,6 @@ export default function InventoryScreen() {
                   <Text style={styles.detailName}>{selectedItem.name}</Text>
                   <Badge label={statusLabel[selectedItem.status]} status={selectedItem.status} />
                 </View>
-
-                <View style={styles.detailRow}>
-                  <Text style={styles.detailLabel}>SKU</Text>
-                  <Text style={styles.detailValue}>{selectedItem.sku}</Text>
-                </View>
                 {selectedItem.barcode && (
                   <View style={styles.detailRow}>
                     <Text style={styles.detailLabel}>Barcode</Text>
@@ -465,11 +518,11 @@ export default function InventoryScreen() {
                 </View>
                 <View style={styles.detailRow}>
                   <Text style={styles.detailLabel}>Price</Text>
-                  <Text style={styles.detailValue}>${selectedItem.price?.toFixed(2)}</Text>
+                  <Text style={styles.detailValue}>₱{selectedItem.price?.toFixed(2)}</Text>
                 </View>
                 <View style={styles.detailRow}>
                   <Text style={styles.detailLabel}>Cost</Text>
-                  <Text style={styles.detailValue}>${selectedItem.cost?.toFixed(2)}</Text>
+                  <Text style={styles.detailValue}>₱{selectedItem.cost?.toFixed(2)}</Text>
                 </View>
                 <View style={styles.detailRow}>
                   <Text style={styles.detailLabel}>Quantity</Text>
@@ -570,13 +623,16 @@ const styles = StyleSheet.create({
   statDivider: { width: 1, backgroundColor: colors.border },
   statValue: { ...typography.h2, color: colors.textPrimary },
   statLabel: { ...typography.caption, color: colors.textMuted },
-  resultsText: { ...typography.caption, color: colors.textMuted, marginBottom: spacing.md },
+  resultsRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.md },
+  resultsText: { ...typography.caption, color: colors.textMuted },
+  displayToggle: { flexDirection: 'row', backgroundColor: colors.surfaceHover, borderRadius: radius.sm, padding: 2 },
+  displayBtn: { width: 32, height: 28, alignItems: 'center', justifyContent: 'center', borderRadius: radius.xs },
+  displayBtnActive: { backgroundColor: colors.primary },
   itemCard: { marginBottom: spacing.md },
   itemHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: spacing.md },
   itemInfo: { flex: 1, marginRight: spacing.md },
   itemName: { ...typography.bodyMedium, color: colors.textPrimary, marginBottom: 4 },
   itemMeta: { flexDirection: 'row', alignItems: 'center' },
-  itemSku: { ...typography.caption, color: colors.textMuted },
   metaDot: { width: 3, height: 3, borderRadius: 1.5, backgroundColor: colors.textMuted, marginHorizontal: spacing.sm },
   itemCategory: { ...typography.caption, color: colors.textSecondary },
   itemFooter: { flexDirection: 'row', alignItems: 'center', paddingTop: spacing.md, borderTopWidth: 1, borderTopColor: colors.borderLight },
@@ -590,6 +646,27 @@ const styles = StyleSheet.create({
   emptyCard: { alignItems: 'center', padding: spacing.xxl },
   emptyTitle: { ...typography.h3, color: colors.textPrimary, marginTop: spacing.lg },
   emptyText: { ...typography.body, color: colors.textMuted, marginTop: spacing.xs, marginBottom: spacing.lg },
+  // List View styles
+  listContainer: { backgroundColor: colors.surface, borderRadius: radius.md, ...shadow.sm, overflow: 'hidden', marginBottom: spacing.md },
+  listHeader: { flexDirection: 'row', backgroundColor: colors.surfaceHover, paddingVertical: spacing.sm, paddingHorizontal: spacing.md, borderBottomWidth: 1, borderBottomColor: colors.border },
+  listHeaderText: { ...typography.captionMedium, color: colors.textSecondary, textTransform: 'uppercase', fontSize: 10 },
+  listRow: { flexDirection: 'row', paddingVertical: spacing.md, paddingHorizontal: spacing.md, borderBottomWidth: 1, borderBottomColor: colors.borderLight, alignItems: 'center' },
+  listRowEven: { backgroundColor: colors.surfaceHover + '50' },
+  listColName: { flex: 2.5, paddingRight: spacing.sm },
+  listColQty: { flex: 1, textAlign: 'center' },
+  listColPrice: { flex: 1.2, textAlign: 'right' },
+  listColStatus: { flex: 0.8, alignItems: 'center' },
+  listItemName: { ...typography.bodyMedium, color: colors.textPrimary, fontSize: 13 },
+  listCellText: { ...typography.caption, color: colors.textPrimary },
+  statusDot: { width: 10, height: 10, borderRadius: radius.full },
+  // Grid View styles (3 items per row)
+  gridContainer: { flexDirection: 'row', flexWrap: 'wrap', marginHorizontal: -spacing.xs, marginBottom: spacing.md },
+  gridItem: { width: '33.33%', paddingHorizontal: spacing.xs, marginBottom: spacing.sm },
+  gridContent: { backgroundColor: colors.surface, borderRadius: radius.md, padding: spacing.sm, ...shadow.sm, overflow: 'hidden', minHeight: 100 },
+  gridStatusBar: { height: 3, borderTopLeftRadius: radius.md, borderTopRightRadius: radius.md, marginHorizontal: spacing.xs, marginTop: spacing.xs },
+  gridItemName: { ...typography.captionMedium, color: colors.textPrimary, fontSize: 11, marginBottom: spacing.xs, minHeight: 28 },
+  gridItemQty: { ...typography.caption, color: colors.textSecondary, fontSize: 10 },
+  gridItemPrice: { ...typography.bodyMedium, color: colors.primary, fontSize: 12, marginTop: spacing.xs },
   // Modal styles
   modalOverlay: { flex: 1, backgroundColor: colors.overlay, justifyContent: 'flex-end' },
   modalDismiss: { flex: 1 },

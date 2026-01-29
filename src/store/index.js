@@ -242,3 +242,32 @@ export const useCategoriesStore = create((set, get) => ({
     categories: state.categories.filter(c => c.id !== id)
   })),
 }));
+
+// Received Products Store - for tracking products received from suppliers
+export const useReceivedProductsStore = create((set, get) => ({
+  receivedProducts: [],
+  
+  addReceivedProducts: (products) => set((state) => ({
+    receivedProducts: [...products, ...state.receivedProducts]
+  })),
+  
+  deleteReceivedProduct: (id) => set((state) => ({
+    receivedProducts: state.receivedProducts.filter(p => p.id !== id)
+  })),
+  
+  clearAllReceivedProducts: () => set({ receivedProducts: [] }),
+  
+  // Stats
+  getTotalReceived: () => get().receivedProducts.reduce((sum, p) => sum + p.quantity, 0),
+  getTotalValue: () => get().receivedProducts.reduce((sum, p) => sum + p.totalPrice, 0),
+  getSupplierCount: () => [...new Set(get().receivedProducts.map(p => p.supplier))].length,
+  
+  // Get by date range
+  getTodayReceived: () => {
+    const today = new Date().toDateString();
+    return get().receivedProducts.filter(p => new Date(p.dateReceived).toDateString() === today);
+  },
+  
+  // Get by supplier
+  getBySupplier: (supplier) => get().receivedProducts.filter(p => p.supplier === supplier),
+}));

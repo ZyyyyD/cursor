@@ -4,15 +4,20 @@ import Card from '../components/Card';
 import Icon from '../components/Icon';
 import Screen from '../components/Screen';
 import Button from '../components/Button';
-import { useInventoryStore } from '../store';
+import { useInventoryStore, useReceivedProductsStore } from '../store';
 import { colors, radius, shadow, spacing, typography } from '../theme';
 
 export default function OrdersScreen() {
-  const adjustStock = useInventoryStore((state) => state.adjustStock);
   const inventory = useInventoryStore((state) => state.items);
+  const addItem = useInventoryStore((state) => state.addItem);
+  const adjustStock = useInventoryStore((state) => state.adjustStock);
+  
+  // Received products store
+  const receivedProducts = useReceivedProductsStore((state) => state.receivedProducts);
+  const addReceivedProducts = useReceivedProductsStore((state) => state.addReceivedProducts);
+  const deleteReceivedProduct = useReceivedProductsStore((state) => state.deleteReceivedProduct);
+  const clearAllReceivedProducts = useReceivedProductsStore((state) => state.clearAllReceivedProducts);
 
-  // Received products state (main table)
-  const [receivedProducts, setReceivedProducts] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   
   // Form state
@@ -88,7 +93,7 @@ export default function OrdersScreen() {
     setPendingItems(pendingItems.filter(item => item.id !== id));
   };
 
-  // Save all pending items to main table
+  // Save all pending items to store and update inventory
   const handleSaveAll = () => {
     if (!supplierName.trim()) {
       Alert.alert('Error', 'Please enter supplier name');
@@ -99,7 +104,8 @@ export default function OrdersScreen() {
       return;
     }
 
-    const dateReceived = new Date().toLocaleDateString('en-US', { 
+    const dateReceived = new Date().toISOString();
+    const dateDisplay = new Date().toLocaleDateString('en-US', { 
       month: 'short', 
       day: 'numeric', 
       year: 'numeric',
@@ -111,19 +117,41 @@ export default function OrdersScreen() {
       ...item,
       id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
       supplier: supplierName.trim(),
-      dateReceived,
+      dateReceived: dateDisplay,
+      timestamp: dateReceived,
     }));
 
-    // Add to main table
-    setReceivedProducts([...newProducts, ...receivedProducts]);
+    // Add to received products store
+    addReceivedProducts(newProducts);
     
     // Update inventory stock for each product
+    let newItemsAdded = 0;
+    let stockUpdated = 0;
+    
     newProducts.forEach(product => {
       const existingItem = inventory.find(
         item => item.name.toLowerCase() === product.productName.toLowerCase()
       );
+      
       if (existingItem) {
+        // Update existing item's stock
         adjustStock(existingItem.id, product.quantity, 'in');
+        stockUpdated++;
+      } else {
+        // Add as new inventory item
+        addItem({
+          name: product.productName,
+          sku: `SKU-${Date.now().toString().slice(-6)}`,
+          barcode: '',
+          category: 'Supplies',
+          price: product.unitPrice,
+          cost: product.unitPrice,
+          qty: product.quantity,
+          min: 5,
+          location: 'Warehouse',
+          description: `Received from ${product.supplier}`,
+        });
+        newItemsAdded++;
       }
     });
 
@@ -135,7 +163,16 @@ export default function OrdersScreen() {
     setUnitPrice('');
     setModalVisible(false);
     
-    Alert.alert('Success', `Received ${newProducts.length} product(s) from ${supplierName}`);
+    // Show success message with details
+    let message = `Received ${newProducts.length} product(s) from ${supplierName}`;
+    if (newItemsAdded > 0) {
+      message += `\n\n${newItemsAdded} new item(s) added to inventory`;
+    }
+    if (stockUpdated > 0) {
+      message += `\n${stockUpdated} existing item(s) stock updated`;
+    }
+    
+    Alert.alert('Success', message);
   };
 
   // Close modal and reset
@@ -168,14 +205,14 @@ export default function OrdersScreen() {
   const handleDeleteProduct = (id) => {
     Alert.alert(
       'Delete Entry',
-      'Are you sure you want to remove this received product entry?',
+      'Are you sure you want to remove this received product entry? This will NOT remove the stock from inventory.',
       [
         { text: 'Cancel', style: 'cancel' },
         {
           text: 'Delete',
           style: 'destructive',
           onPress: () => {
-            setReceivedProducts(receivedProducts.filter(p => p.id !== id));
+            deleteReceivedProduct(id);
           }
         }
       ]
@@ -187,14 +224,14 @@ export default function OrdersScreen() {
     
     Alert.alert(
       'Clear All',
-      'Are you sure you want to clear all received products?',
+      'Are you sure you want to clear all received products history? This will NOT remove the stock from inventory.',
       [
         { text: 'Cancel', style: 'cancel' },
         {
           text: 'Clear All',
           style: 'destructive',
           onPress: () => {
-            setReceivedProducts([]);
+            clearAllReceivedProducts();
           }
         }
       ]
@@ -319,7 +356,7 @@ export default function OrdersScreen() {
         {/* Clear All Button */}
         {receivedProducts.length > 0 && (
           <Button 
-            title="Clear All Entries" 
+            title="Clear History" 
             variant="outline" 
             icon="trash-2"
             onPress={handleClearAll}
@@ -369,7 +406,7 @@ export default function OrdersScreen() {
                     style={styles.input}
                     value={productName}
                     onChangeText={setProductName}
-                    placeholder="Enter product name"
+                    placeholder="Enter product name (matches inventory)"
                     placeholderTextColor={colors.textMuted}
                   />
                 </View>
@@ -418,6 +455,14 @@ export default function OrdersScreen() {
                   onPress={handleAddToList} 
                   style={styles.addToListButton}
                 />
+              </View>
+
+              {/* Info Box */}
+              <View style={styles.infoBox}>
+                <Icon name="info" size={16} color={colors.info} />
+                <Text style={styles.infoText}>
+                  Products matching inventory names will update stock. New products will be added to inventory.
+                </Text>
               </View>
 
               {/* Pending Items List */}
@@ -562,8 +607,12 @@ const styles = StyleSheet.create({
   inputRow: { flexDirection: 'row', gap: spacing.md },
   
   // Entry Section
-  entrySection: { backgroundColor: colors.surfaceHover, borderRadius: radius.md, padding: spacing.md, marginBottom: spacing.lg },
+  entrySection: { backgroundColor: colors.surfaceHover, borderRadius: radius.md, padding: spacing.md, marginBottom: spacing.md },
   sectionTitle: { ...typography.bodyMedium, color: colors.textPrimary, marginBottom: spacing.md },
+  
+  // Info Box
+  infoBox: { flexDirection: 'row', backgroundColor: colors.infoLight, borderRadius: radius.sm, padding: spacing.md, marginBottom: spacing.lg, gap: spacing.sm },
+  infoText: { ...typography.caption, color: colors.info, flex: 1 },
   
   // Subtotal Preview
   subtotalPreview: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.md, paddingVertical: spacing.sm, paddingHorizontal: spacing.md, backgroundColor: colors.surface, borderRadius: radius.sm },
