@@ -25,6 +25,7 @@ export default function OrdersScreen() {
   const [productName, setProductName] = useState('');
   const [quantity, setQuantity] = useState('');
   const [unitPrice, setUnitPrice] = useState('');
+  const [wholesalePrice, setWholesalePrice] = useState('');
   
   // Multiple entries state (pending items in modal)
   const [pendingItems, setPendingItems] = useState([]);
@@ -70,6 +71,7 @@ export default function OrdersScreen() {
 
     const qty = parseInt(quantity);
     const price = parseFloat(unitPrice);
+    const wholesale = parseFloat(wholesalePrice) || 0;
     const total = qty * price;
 
     const newItem = {
@@ -77,6 +79,7 @@ export default function OrdersScreen() {
       productName: productName.trim(),
       quantity: qty,
       unitPrice: price,
+      wholesalePrice: wholesale,
       totalPrice: total,
     };
 
@@ -86,6 +89,7 @@ export default function OrdersScreen() {
     setProductName('');
     setQuantity('');
     setUnitPrice('');
+    setWholesalePrice('');
   };
 
   // Remove item from pending list
@@ -145,6 +149,7 @@ export default function OrdersScreen() {
           barcode: '',
           category: 'Supplies',
           price: product.unitPrice,
+          wholesalePrice: product.wholesalePrice || 0,
           cost: product.unitPrice,
           qty: product.quantity,
           min: 5,
@@ -161,6 +166,7 @@ export default function OrdersScreen() {
     setProductName('');
     setQuantity('');
     setUnitPrice('');
+    setWholesalePrice('');
     setModalVisible(false);
     
     // Show success message with details
@@ -192,6 +198,7 @@ export default function OrdersScreen() {
               setProductName('');
               setQuantity('');
               setUnitPrice('');
+              setWholesalePrice('');
               setModalVisible(false);
             }
           }
@@ -435,6 +442,19 @@ export default function OrdersScreen() {
                       keyboardType="decimal-pad"
                     />
                   </View>
+                </View>
+
+                {/* Wholesale Price */}
+                <View style={styles.inputGroup}>
+                  <Text style={styles.inputLabel}>Wholesale Price (₱)</Text>
+                  <TextInput
+                    style={styles.input}
+                    value={wholesalePrice}
+                    onChangeText={setWholesalePrice}
+                    placeholder="0.00 (optional)"
+                    placeholderTextColor={colors.textMuted}
+                    keyboardType="decimal-pad"
+                  />
                 </View>
 
                 {/* Preview Subtotal */}

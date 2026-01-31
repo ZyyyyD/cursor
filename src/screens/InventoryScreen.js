@@ -43,6 +43,7 @@ export default function InventoryScreen() {
     barcode: '',
     category: '',
     price: '',
+    wholesalePrice: '',
     cost: '',
     qty: '',
     min: '',
@@ -96,6 +97,7 @@ export default function InventoryScreen() {
       barcode: '',
       category: '',
       price: '',
+      wholesalePrice: '',
       cost: '',
       qty: '',
       min: '',
@@ -115,6 +117,7 @@ export default function InventoryScreen() {
       barcode: newItem.barcode.trim(),
       category: newItem.category || 'Other',
       price: parseFloat(newItem.price) || 0,
+      wholesalePrice: parseFloat(newItem.wholesalePrice) || 0,
       cost: parseFloat(newItem.cost) || 0,
       qty: parseInt(newItem.qty, 10) || 0,
       min: parseInt(newItem.min, 10) || 0,
@@ -431,6 +434,20 @@ export default function InventoryScreen() {
                   />
                 </View>
                 <View style={[styles.inputGroup, { flex: 1 }]}>
+                  <Text style={styles.inputLabel}>Wholesale Price</Text>
+                  <TextInput
+                    style={styles.input}
+                    value={newItem.wholesalePrice}
+                    onChangeText={(text) => setNewItem({ ...newItem, wholesalePrice: text })}
+                    placeholder="0.00"
+                    placeholderTextColor={colors.textMuted}
+                    keyboardType="decimal-pad"
+                  />
+                </View>
+              </View>
+
+              <View style={styles.inputRow}>
+                <View style={[styles.inputGroup, { flex: 1 }]}>
                   <Text style={styles.inputLabel}>Cost Price</Text>
                   <TextInput
                     style={styles.input}
@@ -441,9 +458,6 @@ export default function InventoryScreen() {
                     keyboardType="decimal-pad"
                   />
                 </View>
-              </View>
-
-              <View style={styles.inputRow}>
                 <View style={[styles.inputGroup, { flex: 1 }]}>
                   <Text style={styles.inputLabel}>Initial Quantity</Text>
                   <TextInput
@@ -455,6 +469,9 @@ export default function InventoryScreen() {
                     keyboardType="number-pad"
                   />
                 </View>
+              </View>
+
+              <View style={styles.inputRow}>
                 <View style={[styles.inputGroup, { flex: 1 }]}>
                   <Text style={styles.inputLabel}>Minimum Stock</Text>
                   <TextInput
@@ -466,17 +483,16 @@ export default function InventoryScreen() {
                     keyboardType="number-pad"
                   />
                 </View>
-              </View>
-
-              <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Location</Text>
-                <TextInput
-                  style={styles.input}
-                  value={newItem.location}
-                  onChangeText={(text) => setNewItem({ ...newItem, location: text })}
-                  placeholder="e.g., Shelf A-1"
-                  placeholderTextColor={colors.textMuted}
-                />
+                <View style={[styles.inputGroup, { flex: 1 }]}>
+                  <Text style={styles.inputLabel}>Location</Text>
+                  <TextInput
+                    style={styles.input}
+                    value={newItem.location}
+                    onChangeText={(text) => setNewItem({ ...newItem, location: text })}
+                    placeholder="e.g., Shelf A-1"
+                    placeholderTextColor={colors.textMuted}
+                  />
+                </View>
               </View>
             </ScrollView>
 
@@ -519,6 +535,10 @@ export default function InventoryScreen() {
                 <View style={styles.detailRow}>
                   <Text style={styles.detailLabel}>Price</Text>
                   <Text style={styles.detailValue}>₱{selectedItem.price?.toFixed(2)}</Text>
+                </View>
+                <View style={styles.detailRow}>
+                  <Text style={styles.detailLabel}>Wholesale</Text>
+                  <Text style={styles.detailValue}>₱{selectedItem.wholesalePrice?.toFixed(2) || '0.00'}</Text>
                 </View>
                 <View style={styles.detailRow}>
                   <Text style={styles.detailLabel}>Cost</Text>

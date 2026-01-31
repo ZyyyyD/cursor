@@ -24,6 +24,7 @@ export const useInventoryStore = create((set, get) => ({
       qty: item.qty || 0,
       min: item.min || 0,
       price: item.price || 0,
+      wholesalePrice: item.wholesalePrice || 0,
       cost: item.cost || 0,
       status: calculateStatus(item.qty || 0, item.min || 0),
       createdAt: new Date().toISOString(),
