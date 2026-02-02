@@ -8,6 +8,8 @@ import Badge from '../components/Badge';
 import Button from '../components/Button';
 import { useInventoryStore, useCategoriesStore } from '../store';
 import { colors, radius, shadow, spacing, typography } from '../theme';
+import MoreScreen from './MoreScreen.js'
+
 
 const statusLabel = {
   success: 'In Stock',
@@ -15,7 +17,8 @@ const statusLabel = {
   danger: 'Out of Stock',
 };
 
-const defaultCategories = ['Electronics', 'Clothing', 'Food', 'Beverages', 'Medicine', 'Supplies', 'Equipment', 'Other'];
+//const defaultCategories = ['Electronics', 'Clothing', 'Food', 'Beverages', 'Medicine', 'Supplies', 'Equipment', 'Other'];
+const defaultCategories = MoreScreen.customCategories;
 
 export default function InventoryScreen() {
   const items = useInventoryStore((state) => state.items);
@@ -38,7 +41,7 @@ export default function InventoryScreen() {
   const [adjustQty, setAdjustQty] = useState('');
   
   // New item form
-  const [newItem, setNewItem] = useState({
+  const [newItem,   ] = useState({
     name: '',
     barcode: '',
     category: '',
@@ -55,7 +58,7 @@ export default function InventoryScreen() {
   const allCategories = useMemo(() => {
     const fromItems = [...new Set(items.map(item => item.category).filter(Boolean))];
     const fromSaved = categories.map(c => c.name);
-    return [...new Set([...defaultCategories, ...fromItems, ...fromSaved])];
+    return [...new Set([defaultCategories, ...fromItems, ...fromSaved])];
   }, [items, categories]);
 
   // Filter list
@@ -481,16 +484,6 @@ export default function InventoryScreen() {
                     placeholder="0"
                     placeholderTextColor={colors.textMuted}
                     keyboardType="number-pad"
-                  />
-                </View>
-                <View style={[styles.inputGroup, { flex: 1 }]}>
-                  <Text style={styles.inputLabel}>Location</Text>
-                  <TextInput
-                    style={styles.input}
-                    value={newItem.location}
-                    onChangeText={(text) => setNewItem({ ...newItem, location: text })}
-                    placeholder="e.g., Shelf A-1"
-                    placeholderTextColor={colors.textMuted}
                   />
                 </View>
               </View>
