@@ -1,16 +1,28 @@
-import React, { useMemo } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import Card from '../components/Card';
-import Icon from '../components/Icon';
-import Screen from '../components/Screen';
-import SectionHeader from '../components/SectionHeader';
-import { useInventoryStore, useOrdersStore, useSalesStore, useCartStore } from '../store';
-import { colors, radius, shadow, spacing, typography } from '../theme';
+import React, { useMemo } from "react";
+import {
+  Alert,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import Card from "../components/Card";
+import Icon from "../components/Icon";
+import Screen from "../components/Screen";
+import SectionHeader from "../components/SectionHeader";
+import {
+  useInventoryStore,
+  useOrdersStore,
+  useSalesStore,
+  useCartStore,
+} from "../store";
+import { colors, radius, shadow, spacing, typography } from "../theme";
 
 export default function DashboardScreen() {
   const navigation = useNavigation();
-  
+
   // Get data from stores
   const inventory = useInventoryStore((state) => state.items);
   const orders = useOrdersStore((state) => state.orders);
@@ -19,32 +31,51 @@ export default function DashboardScreen() {
   // Calculate stats dynamically
   const stats = useMemo(() => {
     const today = new Date().toDateString();
-    
+
     const totalItems = inventory.length;
     const totalStock = inventory.reduce((sum, item) => sum + item.qty, 0);
-    const stockValue = inventory.reduce((sum, item) => sum + (item.qty * item.price), 0);
-    const lowStockCount = inventory.filter(item => item.status === 'warning').length;
-    const outOfStockCount = inventory.filter(item => item.status === 'danger').length;
-    const pendingOrders = orders.filter(o => o.status !== 'success').length;
-    
+    const stockValue = inventory.reduce(
+      (sum, item) => sum + item.qty * item.price,
+      0,
+    );
+    const lowStockCount = inventory.filter(
+      (item) => item.status === "warning",
+    ).length;
+    const outOfStockCount = inventory.filter(
+      (item) => item.status === "danger",
+    ).length;
+    const pendingOrders = orders.filter((o) => o.status !== "success").length;
+
     // Sales stats
     const totalSales = transactions.reduce((sum, t) => sum + t.total, 0);
-    const todayTransactions = transactions.filter(t => new Date(t.date).toDateString() === today);
+    const todayTransactions = transactions.filter(
+      (t) => new Date(t.date).toDateString() === today,
+    );
     const todaySales = todayTransactions.reduce((sum, t) => sum + t.total, 0);
     const todayTransactionCount = todayTransactions.length;
-    
+
     // Items sold calculations
-    const totalItemsSold = transactions.reduce((sum, t) => sum + (t.items?.length || 0), 0);
-    const todayItemsSold = todayTransactions.reduce((sum, t) => sum + (t.items?.length || 0), 0);
-    
+    const totalItemsSold = transactions.reduce(
+      (sum, t) => sum + (t.items?.length || 0),
+      0,
+    );
+    const todayItemsSold = todayTransactions.reduce(
+      (sum, t) => sum + (t.items?.length || 0),
+      0,
+    );
+
     // Average transaction value
-    const avgTransactionValue = transactions.length > 0 ? totalSales / transactions.length : 0;
+    const avgTransactionValue =
+      transactions.length > 0 ? totalSales / transactions.length : 0;
     const profit = transactions.reduce((sum, t) => sum + (t.profit || 0), 0);
-    const todayProfit = todayTransactions.reduce((sum, t) => sum + (t.profit || 0), 0);
-    
+    const todayProfit = todayTransactions.reduce(
+      (sum, t) => sum + (t.profit || 0),
+      0,
+    );
+
     // Category breakdown
     const byCategory = inventory.reduce((acc, item) => {
-      const cat = item.category || 'Uncategorized';
+      const cat = item.category || "Uncategorized";
       if (!acc[cat]) acc[cat] = { count: 0, value: 0 };
       acc[cat].count += item.qty;
       acc[cat].value += item.qty * item.price;
@@ -74,14 +105,15 @@ export default function DashboardScreen() {
   // Recent low stock items for alerts
   const lowStockAlerts = useMemo(() => {
     return inventory
-      .filter(item => item.status === 'warning' || item.status === 'danger')
+      .filter((item) => item.status === "warning" || item.status === "danger")
       .slice(0, 5)
-      .map(item => ({
+      .map((item) => ({
         id: item.id,
-        text: item.status === 'danger' 
-          ? `Out of stock: ${item.name}` 
-          : `Low stock: ${item.name} (${item.qty} left)`,
-        type: item.status === 'danger' ? 'danger' : 'warning',
+        text:
+          item.status === "danger"
+            ? `Out of stock: ${item.name}`
+            : `Low stock: ${item.name} (${item.qty} left)`,
+        type: item.status === "danger" ? "danger" : "warning",
       }));
   }, [inventory]);
 
@@ -96,33 +128,40 @@ export default function DashboardScreen() {
   };
 
   const formatDate = () => {
-    return new Date().toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+    return new Date().toLocaleDateString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
 
   return (
     <Screen>
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.content}
+      >
         {/* Header */}
         <View style={styles.header}>
           <View>
             <Text style={styles.greeting}>Welcome back</Text>
             <Text style={styles.title}>Dashboard</Text>
           </View>
-          <Pressable 
+          <Pressable
             style={styles.profileButton}
-            onPress={() => handleNavigate('More')}
+            onPress={() => handleNavigate("More")}
           >
             <Icon name="user" size={22} color={colors.primary} />
           </Pressable>
         </View>
 
         {/* Daily Reports Overview */}
-        <SectionHeader title="Today's Report" icon="calendar" action={formatDate()} />
+        <SectionHeader
+          title="Today's Report"
+          icon="calendar"
+          action={formatDate()}
+        />
         <Card style={styles.dailyReportCard}>
           <View style={styles.dailyReportHeader}>
             <View style={styles.dailyReportIconContainer}>
@@ -130,50 +169,111 @@ export default function DashboardScreen() {
             </View>
             <View style={styles.dailyReportHeaderText}>
               <Text style={styles.dailyReportTitle}>Daily Summary</Text>
-              <Text style={styles.dailyReportSubtitle}>Real-time overview of today's activity</Text>
+              <Text style={styles.dailyReportSubtitle}>
+                Real-time overview of today's activity
+              </Text>
             </View>
           </View>
-          
+
           <View style={styles.dailyStatsGrid}>
             <View style={styles.dailyStat}>
-              <View style={[styles.dailyStatIcon, { backgroundColor: colors.greenLight }]}>
+              <View
+                style={[
+                  styles.dailyStatIcon,
+                  { backgroundColor: colors.greenLight },
+                ]}
+              >
                 <Icon name="dollar-sign" size={16} color={colors.green} />
               </View>
-              <Text style={styles.dailyStatValue}>{formatCurrency(stats.todaySales)}</Text>
+              <Text style={styles.dailyStatValue}>
+                {formatCurrency(stats.todaySales)}
+              </Text>
               <Text style={styles.dailyStatLabel}>Today's Sales</Text>
             </View>
             <View style={styles.dailyStat}>
-              <View style={[styles.dailyStatIcon, { backgroundColor: colors.blueLight }]}>
+              <View
+                style={[
+                  styles.dailyStatIcon,
+                  { backgroundColor: colors.blueLight },
+                ]}
+              >
                 <Icon name="shopping-bag" size={16} color={colors.blue} />
               </View>
-              <Text style={styles.dailyStatValue}>{stats.todayTransactionCount}</Text>
+              <Text style={styles.dailyStatValue}>
+                {stats.todayTransactionCount}
+              </Text>
               <Text style={styles.dailyStatLabel}>Transactions</Text>
             </View>
             <View style={styles.dailyStat}>
-              <View style={[styles.dailyStatIcon, { backgroundColor: colors.purpleLight }]}>
+              <View
+                style={[
+                  styles.dailyStatIcon,
+                  { backgroundColor: colors.purpleLight },
+                ]}
+              >
                 <Icon name="package" size={16} color={colors.purple} />
               </View>
               <Text style={styles.dailyStatValue}>{stats.todayItemsSold}</Text>
               <Text style={styles.dailyStatLabel}>Items Sold</Text>
             </View>
             <View style={styles.dailyStat}>
-              <View style={[styles.dailyStatIcon, { backgroundColor: colors.orangeLight }]}>
+              <View
+                style={[
+                  styles.dailyStatIcon,
+                  { backgroundColor: colors.orangeLight },
+                ]}
+              >
                 <Icon name="trending-up" size={16} color={colors.orange} />
               </View>
-              <Text style={styles.dailyStatValue}>{formatCurrency(stats.todayProfit)}</Text>
+              <Text style={styles.dailyStatValue}>
+                {formatCurrency(stats.todayProfit)}
+              </Text>
               <Text style={styles.dailyStatLabel}>Today's Profit</Text>
             </View>
           </View>
         </Card>
 
+        {/* Functions Overview */}
+        <SectionHeader title="Quick Access" icon="grid" />
+        <View style={styles.metricsGrid}>
+          <Card style={styles.metricCard} onPress={() => handleNavigate("POS")}>
+            <View
+              style={[styles.metricIcon, { backgroundColor: colors.pinkLight }]}
+            >
+              <Icon name="shopping-bag" size={20} color={colors.pink} />
+            </View>
+            <Text style={styles.metricLabel}>New Sale</Text>
+            <Text style={styles.metricValue}>POS</Text>
+          </Card>
+          <Card
+            style={styles.metricCard}
+            onPress={() => handleNavigate("Receive")}
+          >
+            <View
+              style={[styles.metricIcon, { backgroundColor: colors.blueLight }]}
+            >
+              <Icon name="truck" size={20} color={colors.blue} />
+            </View>
+            <Text style={styles.metricLabel}>Receive Stock</Text>
+            <Text style={styles.metricValue}>Supplier</Text>
+          </Card>
+        </View>
+
         {/* Total Reports Summary */}
-        <SectionHeader title="Total Reports" icon="bar-chart-2" action="All Time" onAction={() => handleNavigate('Reports')} />
+        <SectionHeader
+          title="Total Reports"
+          icon="bar-chart-2"
+          action="All Time"
+          onAction={() => handleNavigate("Reports")}
+        />
         <Card style={styles.totalReportCard}>
           <View style={styles.totalReportRow}>
             <View style={styles.totalReportItem}>
               <Icon name="dollar-sign" size={20} color={colors.primary} />
               <View style={styles.totalReportTextContainer}>
-                <Text style={styles.totalReportValue}>{formatCurrency(stats.totalSales)}</Text>
+                <Text style={styles.totalReportValue}>
+                  {formatCurrency(stats.totalSales)}
+                </Text>
                 <Text style={styles.totalReportLabel}>Total Revenue</Text>
               </View>
             </View>
@@ -181,17 +281,21 @@ export default function DashboardScreen() {
             <View style={styles.totalReportItem}>
               <Icon name="shopping-cart" size={20} color={colors.green} />
               <View style={styles.totalReportTextContainer}>
-                <Text style={styles.totalReportValue}>{stats.transactionCount}</Text>
+                <Text style={styles.totalReportValue}>
+                  {stats.transactionCount}
+                </Text>
                 <Text style={styles.totalReportLabel}>Total Transactions</Text>
               </View>
             </View>
           </View>
-          
+
           <View style={styles.totalReportRow}>
             <View style={styles.totalReportItem}>
               <Icon name="package" size={20} color={colors.purple} />
               <View style={styles.totalReportTextContainer}>
-                <Text style={styles.totalReportValue}>{stats.totalItemsSold}</Text>
+                <Text style={styles.totalReportValue}>
+                  {stats.totalItemsSold}
+                </Text>
                 <Text style={styles.totalReportLabel}>Items Sold</Text>
               </View>
             </View>
@@ -205,62 +309,99 @@ export default function DashboardScreen() {
             </View>
           </View>
 
-          <Pressable style={styles.viewFullReportBtn} onPress={() => handleNavigate('Reports')}>
+          <Pressable
+            style={styles.viewFullReportBtn}
+            onPress={() => handleNavigate("Reports")}
+          >
             <Text style={styles.viewFullReportText}>View Full Reports</Text>
             <Icon name="arrow-right" size={16} color={colors.primary} />
           </Pressable>
         </Card>
 
-        {/* Functions Overview */}
-        <SectionHeader title="Quick Access" icon="grid" />
-        <View style={styles.metricsGrid}>
-          <Card style={styles.metricCard} onPress={() => handleNavigate('POS')}>
-            <View style={[styles.metricIcon, { backgroundColor: colors.pinkLight }]}>
-              <Icon name="shopping-bag" size={20} color={colors.pink} />
-            </View>
-            <Text style={styles.metricLabel}>New Sale</Text>
-            <Text style={styles.metricValue}>POS</Text>
-          </Card>
-          <Card style={styles.metricCard} onPress={() => handleNavigate('Receive')}>
-            <View style={[styles.metricIcon, { backgroundColor: colors.blueLight }]}>
-              <Icon name="truck" size={20} color={colors.blue} />
-            </View>
-            <Text style={styles.metricLabel}>Receive Stock</Text>
-            <Text style={styles.metricValue}>Supplier</Text>
-          </Card>
-        </View>
         {/* Inventory Overview */}
-        <SectionHeader title="Stock Overview" icon="package" action="View All" onAction={() => handleNavigate('Inventory')} />
+        <SectionHeader
+          title="Stock Overview"
+          icon="package"
+          action="View All"
+          onAction={() => handleNavigate("Inventory")}
+        />
         <View style={styles.metricsGrid}>
-          <Card style={styles.metricCard} onPress={() => handleNavigate('Inventory')}>
-            <View style={[styles.metricIcon, { backgroundColor: colors.purpleLight }]}>
+          <Card
+            style={styles.metricCard}
+            onPress={() => handleNavigate("Inventory")}
+          >
+            <View
+              style={[
+                styles.metricIcon,
+                { backgroundColor: colors.purpleLight },
+              ]}
+            >
               <Icon name="box" size={20} color={colors.purple} />
             </View>
             <Text style={styles.metricLabel}>Total Products</Text>
             <Text style={styles.metricValue}>{stats.totalItems}</Text>
           </Card>
-          <Card style={styles.metricCard} onPress={() => handleNavigate('Inventory')}>
-            <View style={[styles.metricIcon, { backgroundColor: colors.greenLight }]}>
+          <Card
+            style={styles.metricCard}
+            onPress={() => handleNavigate("Inventory")}
+          >
+            <View
+              style={[
+                styles.metricIcon,
+                { backgroundColor: colors.greenLight },
+              ]}
+            >
               <Icon name="layers" size={20} color={colors.green} />
             </View>
             <Text style={styles.metricLabel}>Stock Value</Text>
-            <Text style={styles.metricValue}>{formatCurrency(stats.stockValue)}</Text>
+            <Text style={styles.metricValue}>
+              {formatCurrency(stats.stockValue)}
+            </Text>
           </Card>
-          <Card style={[styles.metricCard, stats.lowStockCount > 0 && styles.warningCard]} onPress={() => handleNavigate('Inventory')}>
-            <View style={[styles.metricIcon, { backgroundColor: colors.yellowLight }]}>
+          <Card
+            style={[
+              styles.metricCard,
+              stats.lowStockCount > 0 && styles.warningCard,
+            ]}
+            onPress={() => handleNavigate("Inventory")}
+          >
+            <View
+              style={[
+                styles.metricIcon,
+                { backgroundColor: colors.yellowLight },
+              ]}
+            >
               <Icon name="alert-triangle" size={20} color={colors.yellow} />
             </View>
             <Text style={styles.metricLabel}>Low Stock</Text>
-            <Text style={[styles.metricValue, stats.lowStockCount > 0 && { color: colors.warning }]}>
+            <Text
+              style={[
+                styles.metricValue,
+                stats.lowStockCount > 0 && { color: colors.warning },
+              ]}
+            >
               {stats.lowStockCount}
             </Text>
           </Card>
-          <Card style={[styles.metricCard, stats.outOfStockCount > 0 && styles.dangerCard]} onPress={() => handleNavigate('Inventory')}>
-            <View style={[styles.metricIcon, { backgroundColor: colors.redLight }]}>
+          <Card
+            style={[
+              styles.metricCard,
+              stats.outOfStockCount > 0 && styles.dangerCard,
+            ]}
+            onPress={() => handleNavigate("Inventory")}
+          >
+            <View
+              style={[styles.metricIcon, { backgroundColor: colors.redLight }]}
+            >
               <Icon name="x-circle" size={20} color={colors.red} />
             </View>
             <Text style={styles.metricLabel}>Out of Stock</Text>
-            <Text style={[styles.metricValue, stats.outOfStockCount > 0 && { color: colors.danger }]}>
+            <Text
+              style={[
+                styles.metricValue,
+                stats.outOfStockCount > 0 && { color: colors.danger },
+              ]}
+            >
               {stats.outOfStockCount}
             </Text>
           </Card>
@@ -298,20 +439,40 @@ export default function DashboardScreen() {
         {/* Alerts */}
         {lowStockAlerts.length > 0 && (
           <>
-            <SectionHeader title="Stock Alerts" icon="alert-circle" action={`${lowStockAlerts.length} items`} />
+            <SectionHeader
+              title="Stock Alerts"
+              icon="alert-circle"
+              action={`${lowStockAlerts.length} items`}
+            />
             <Card style={styles.alertsCard}>
               {lowStockAlerts.map((alert, index) => (
                 <Pressable
                   key={alert.id}
-                  onPress={() => handleNavigate('Inventory')}
-                  style={[styles.alertRow, index < lowStockAlerts.length - 1 && styles.alertBorder]}
+                  onPress={() => handleNavigate("Inventory")}
+                  style={[
+                    styles.alertRow,
+                    index < lowStockAlerts.length - 1 && styles.alertBorder,
+                  ]}
                 >
-                  <View style={[
-                    styles.alertDot, 
-                    { backgroundColor: alert.type === 'warning' ? colors.warning : colors.danger }
-                  ]} />
-                  <Text style={styles.alertText} numberOfLines={1}>{alert.text}</Text>
-                  <Icon name="chevron-right" size={16} color={colors.textMuted} />
+                  <View
+                    style={[
+                      styles.alertDot,
+                      {
+                        backgroundColor:
+                          alert.type === "warning"
+                            ? colors.warning
+                            : colors.danger,
+                      },
+                    ]}
+                  />
+                  <Text style={styles.alertText} numberOfLines={1}>
+                    {alert.text}
+                  </Text>
+                  <Icon
+                    name="chevron-right"
+                    size={16}
+                    color={colors.textMuted}
+                  />
                 </Pressable>
               ))}
             </Card>
@@ -323,8 +484,13 @@ export default function DashboardScreen() {
           <Card style={styles.emptyCard}>
             <Icon name="inbox" size={48} color={colors.textMuted} />
             <Text style={styles.emptyTitle}>No inventory yet</Text>
-            <Text style={styles.emptyText}>Add your first item to get started</Text>
-            <Pressable style={styles.emptyBtn} onPress={() => handleNavigate('Inventory')}>
+            <Text style={styles.emptyText}>
+              Add your first item to get started
+            </Text>
+            <Pressable
+              style={styles.emptyBtn}
+              onPress={() => handleNavigate("Inventory")}
+            >
               <Icon name="plus" size={18} color={colors.surface} />
               <Text style={styles.emptyBtnText}>Add First Item</Text>
             </Pressable>
@@ -342,9 +508,9 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.xl,
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: spacing.lg,
   },
   greeting: {
@@ -359,17 +525,17 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: radius.full,
-    backgroundColor: colors.primaryLight + '20',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: colors.primaryLight + "20",
+    alignItems: "center",
+    justifyContent: "center",
   },
   metricsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: spacing.md,
   },
   metricCard: {
-    flexBasis: '47%',
+    flexBasis: "47%",
     flexGrow: 1,
     padding: spacing.lg,
   },
@@ -385,8 +551,8 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: radius.sm,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: spacing.sm,
   },
   metricLabel: {
@@ -398,19 +564,19 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
   },
   actionsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   actionBtn: {
-    alignItems: 'center',
+    alignItems: "center",
     gap: spacing.sm,
   },
   actionIcon: {
     width: 56,
     height: 56,
     borderRadius: radius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     ...shadow.md,
   },
   actionLabel: {
@@ -419,11 +585,11 @@ const styles = StyleSheet.create({
   },
   alertsCard: {
     padding: 0,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   alertRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     padding: spacing.lg,
     gap: spacing.md,
   },
@@ -442,7 +608,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   emptyCard: {
-    alignItems: 'center',
+    alignItems: "center",
     padding: spacing.xxl,
     marginTop: spacing.lg,
   },
@@ -458,8 +624,8 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
   },
   emptyBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: spacing.sm,
     backgroundColor: colors.primary,
     paddingVertical: spacing.md,
@@ -476,8 +642,8 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   dailyReportHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: spacing.lg,
     paddingBottom: spacing.md,
     borderBottomWidth: 1,
@@ -488,8 +654,8 @@ const styles = StyleSheet.create({
     height: 48,
     borderRadius: radius.md,
     backgroundColor: colors.orangeLight,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     marginRight: spacing.md,
   },
   dailyReportHeaderText: {
@@ -505,22 +671,22 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   dailyStatsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     marginHorizontal: -spacing.xs,
   },
   dailyStat: {
-    width: '50%',
+    width: "50%",
     paddingHorizontal: spacing.xs,
     paddingVertical: spacing.sm,
-    alignItems: 'center',
+    alignItems: "center",
   },
   dailyStatIcon: {
     width: 36,
     height: 36,
     borderRadius: radius.sm,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     marginBottom: spacing.xs,
   },
   dailyStatValue: {
@@ -538,13 +704,13 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   totalReportRow: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginBottom: spacing.md,
   },
   totalReportItem: {
     flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingVertical: spacing.sm,
   },
   totalReportDivider: {
@@ -567,9 +733,9 @@ const styles = StyleSheet.create({
     fontSize: 11,
   },
   viewFullReportBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     paddingVertical: spacing.md,
     marginTop: spacing.sm,
     borderTopWidth: 1,

@@ -201,18 +201,6 @@ export const useAlertsStore = create((set, get) => ({
   getUnreadCount: () => get().alerts.filter(a => !a.read).length,
 }));
 
-// Scan History Store
-export const useScanStore = create((set, get) => ({
-  lastScanned: null,
-  history: [],
-  
-  setLastScanned: (item) => set((state) => ({
-    lastScanned: item,
-    history: item ? [{ ...item, scannedAt: new Date().toISOString() }, ...state.history.slice(0, 49)] : state.history
-  })),
-  
-  clearHistory: () => set({ history: [], lastScanned: null }),
-}));
 
 // Suppliers Store - starts empty
 export const useSuppliersStore = create((set, get) => ({
@@ -235,9 +223,13 @@ export const useSuppliersStore = create((set, get) => ({
 export const useCategoriesStore = create((set, get) => ({
   categories: [],
   
-  addCategory: (category) => set((state) => ({
-    categories: [...state.categories, { ...category, id: Date.now().toString() }]
-  })),
+  // Change this section in your Categories Store
+addCategory: (categoryName) => set((state) => ({
+  categories: [
+    ...state.categories, 
+    { id: Date.now().toString(), name: categoryName } // Force the "name" key here
+  ]
+})),
   
   deleteCategory: (id) => set((state) => ({
     categories: state.categories.filter(c => c.id !== id)
