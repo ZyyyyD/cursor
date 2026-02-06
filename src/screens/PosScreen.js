@@ -222,6 +222,7 @@ export default function PosScreen() {
             style={styles.categoryScroll}
           >
             <View style={styles.categoryRow}>
+              <Pressable>Test</Pressable>
               {categories.map((cat) => (
                 <Pressable
                   key={cat}
@@ -564,17 +565,15 @@ const styles = StyleSheet.create({
     ...shadow.sm,
   },
   searchBar: { marginBottom: spacing.lg },
-  categoryScroll: { marginHorizontal: -spacing.lg, marginBottom: spacing.lg },
+  categoryScroll: {
+    marginHorizontal: -spacing.lg,
+    marginBottom: spacing.lg,
+  },
   categoryRow: {
-    // flexDirection: "row",
-    // gap: spacing.sm,
-    // paddingHorizontal: spacing.lg
     flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingVertical: spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.borderLight,
+    gap: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.xs,
   },
   categoryChip: {
     backgroundColor: colors.surface,

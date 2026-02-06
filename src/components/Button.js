@@ -1,23 +1,23 @@
-import React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import Icon from './Icon';
-import { colors, radius, shadow, spacing, typography } from '../theme';
+import React from "react";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import Icon from "./Icon";
+import { colors, radius, shadow, spacing, typography } from "../theme";
 
 export default function Button({
   title,
   onPress,
-  variant = 'primary',
-  size = 'md',
+  variant = "primary",
+  size = "md",
   icon,
   iconRight,
   disabled,
   style,
 }) {
-  const isOutline = variant === 'outline';
-  const isGhost = variant === 'ghost';
-  const isDanger = variant === 'danger';
-  const isSmall = size === 'sm';
+  const isOutline = variant === "outline";
+  const isGhost = variant === "ghost";
+  const isDanger = variant === "danger";
+  const isSmall = size === "sm";
 
   const buttonStyle = [
     styles.button,
@@ -43,11 +43,13 @@ export default function Button({
     <View style={styles.content}>
       {icon && <Icon name={icon} size={isSmall ? 16 : 18} color={iconColor} />}
       <Text style={textStyle}>{title}</Text>
-      {iconRight && <Icon name={iconRight} size={isSmall ? 16 : 18} color={iconColor} />}
+      {iconRight && (
+        <Icon name={iconRight} size={isSmall ? 16 : 18} color={iconColor} />
+      )}
     </View>
   );
 
-  if (variant === 'primary' && !disabled) {
+  if (variant === "primary" && !disabled) {
     return (
       <Pressable
         onPress={onPress}
@@ -58,7 +60,12 @@ export default function Button({
           colors={colors.primaryGradient}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
-          style={[styles.button, isSmall && styles.buttonSmall, styles.gradient, style]}
+          style={[
+            styles.button,
+            isSmall && styles.buttonSmall,
+            styles.gradient,
+            style,
+          ]}
         >
           {content}
         </LinearGradient>
@@ -79,9 +86,9 @@ export default function Button({
 
 const styles = StyleSheet.create({
   button: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.xl,
     borderRadius: radius.sm,
@@ -93,12 +100,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
   },
   buttonOutline: {
-    backgroundColor: 'transparent',
+    backgroundColor: "transparent",
     borderWidth: 1.5,
     borderColor: colors.primary,
   },
   buttonGhost: {
-    backgroundColor: 'transparent',
+    backgroundColor: "transparent",
     shadowOpacity: 0,
     elevation: 0,
   },
@@ -109,8 +116,8 @@ const styles = StyleSheet.create({
     ...shadow.md,
   },
   content: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: spacing.sm,
   },
   text: {

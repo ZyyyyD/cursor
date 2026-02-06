@@ -1,6 +1,6 @@
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { colors, radius, spacing, typography } from '../theme';
+import React from "react";
+import { StyleSheet, Text, View } from "react-native";
+import { colors, radius, spacing, typography } from "../theme";
 
 const statusColors = {
   success: { bg: colors.successLight, text: colors.success },
@@ -10,13 +10,25 @@ const statusColors = {
   default: { bg: colors.borderLight, text: colors.textSecondary },
 };
 
-export default function Badge({ label, status = 'default', size = 'md' }) {
+export default function Badge({ label, status = "default", size = "md" }) {
   const colorSet = statusColors[status] || statusColors.default;
-  const isSmall = size === 'sm';
+  const isSmall = size === "sm";
 
   return (
-    <View style={[styles.badge, { backgroundColor: colorSet.bg }, isSmall && styles.badgeSmall]}>
-      <Text style={[styles.text, { color: colorSet.text }, isSmall && styles.textSmall]}>
+    <View
+      style={[
+        styles.badge,
+        { backgroundColor: colorSet.bg },
+        isSmall && styles.badgeSmall,
+      ]}
+    >
+      <Text
+        style={[
+          styles.text,
+          { color: colorSet.text },
+          isSmall && styles.textSmall,
+        ]}
+      >
         {label}
       </Text>
     </View>
@@ -28,7 +40,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.xs,
     paddingHorizontal: spacing.md,
     borderRadius: radius.full,
-    alignSelf: 'flex-start',
+    alignSelf: "flex-start",
   },
   badgeSmall: {
     paddingVertical: 2,

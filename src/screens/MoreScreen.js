@@ -387,16 +387,17 @@ export default function MoreScreen() {
           action: () => setCategoriesModalVisible(true),
         },
         {
-          label: "Units of Measure",
-          icon: "hash",
-          color: colors.primary,
-          action: () => setUnitsModalVisible(true),
-        },
-        {
           label: "Suppliers",
           icon: "truck",
           color: colors.accent,
           action: () => setSuppliersModalVisible(true),
+        },
+
+        {
+          label: "Dark Mode",
+          icon: "hash",
+          color: colors.primary,
+          action: () => setDarkModeModalVisible(true),
         },
       ],
     },

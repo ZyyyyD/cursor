@@ -1,13 +1,18 @@
-import React from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
-import { colors, radius, shadow, spacing } from '../theme';
+import React from "react";
+import { Pressable, StyleSheet, View } from "react-native";
+import { colors, radius, shadow, spacing } from "../theme";
 
-export default function Card({ children, style, onPress, variant = 'default' }) {
+export default function Card({
+  children,
+  style,
+  onPress,
+  variant = "default",
+}) {
   const cardStyle = [
     styles.card,
-    variant === 'elevated' && styles.elevated,
-    variant === 'outline' && styles.outline,
-    variant === 'filled' && styles.filled,
+    variant === "elevated" && styles.elevated,
+    variant === "outline" && styles.outline,
+    variant === "filled" && styles.filled,
     style,
   ];
 

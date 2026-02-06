@@ -1,7 +1,7 @@
-import React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
-import Icon from './Icon';
-import { colors, spacing, typography } from '../theme';
+import React from "react";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+import Icon from "./Icon";
+import { colors, spacing, typography } from "../theme";
 
 export default function SectionHeader({ title, action, onAction, icon }) {
   return (
@@ -22,15 +22,15 @@ export default function SectionHeader({ title, action, onAction, icon }) {
 
 const styles = StyleSheet.create({
   row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: spacing.md,
     marginTop: spacing.lg,
   },
   titleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: spacing.sm,
   },
   title: {
@@ -38,8 +38,8 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
   },
   actionButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 2,
   },
   action: {

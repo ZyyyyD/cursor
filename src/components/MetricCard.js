@@ -1,28 +1,45 @@
-import React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
-import Icon from './Icon';
-import { colors, radius, shadow, spacing, typography } from '../theme';
+import React from "react";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+import Icon from "./Icon";
+import { radius, shadow, spacing, typography } from "../theme";
+import { useTheme } from "../theme/ThemeContext";
 
-export default function MetricCard({ 
-  label, 
-  value, 
-  icon, 
-  iconBg = colors.primaryLight, 
-  iconColor = colors.primary,
+export default function MetricCard({
+  label,
+  value,
+  icon,
+  iconBg,
+  iconColor,
   onPress,
   compact = false,
 }) {
+  const { colors } = useTheme();
+  const bgColor = iconBg || colors.primaryLight;
+  const textColor = iconColor || colors.primary;
+
   return (
-    <Pressable 
-      style={[styles.card, compact && styles.cardCompact]} 
+    <Pressable
+      style={[
+        styles.card,
+        { backgroundColor: colors.surface },
+        compact && styles.cardCompact,
+      ]}
       onPress={onPress}
     >
-      <View style={[styles.iconWrap, { backgroundColor: iconBg }]}>
-        <Icon name={icon} size={compact ? 18 : 22} color={iconColor} />
+      <View style={[styles.iconWrap, { backgroundColor: bgColor }]}>
+        <Icon name={icon} size={compact ? 18 : 22} color={textColor} />
       </View>
       <View style={styles.content}>
-        <Text style={styles.label}>{label}</Text>
-        <Text style={[styles.value, compact && styles.valueCompact]}>{value}</Text>
+        <Text style={[styles.label, { color: colors.textMuted }]}>{label}</Text>
+        <Text
+          style={[
+            styles.value,
+            { color: colors.textPrimary },
+            compact && styles.valueCompact,
+          ]}
+        >
+          {value}
+        </Text>
       </View>
     </Pressable>
   );
@@ -30,9 +47,8 @@ export default function MetricCard({
 
 const styles = StyleSheet.create({
   card: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.surface,
+    flexDirection: "row",
+    alignItems: "center",
     borderRadius: radius.md,
     padding: spacing.lg,
     gap: spacing.md,
@@ -45,20 +61,18 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: radius.sm,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   content: {
     flex: 1,
   },
   label: {
     ...typography.caption,
-    color: colors.textMuted,
     marginBottom: 2,
   },
   value: {
     ...typography.metric,
-    color: colors.textPrimary,
   },
   valueCompact: {
     ...typography.metricSmall,
